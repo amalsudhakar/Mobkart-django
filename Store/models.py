@@ -1,0 +1,43 @@
+from django.db import models
+from django.urls import reverse
+
+# Create your models here.
+class Category(models.Model):
+    category = models.CharField(max_length=10, unique=True)
+    slug = models.SlugField(max_length=100, unique=True)
+
+    class Meta:
+        verbose_name = 'category'
+        verbose_name_plural = 'categories'
+
+    def get_url(self):
+        return reverse('products_by_category', args=[self.slug])
+
+    def __str__(self):
+        return self.category
+
+class Product(models.Model):
+    product_name = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=50, unique=True)
+    description = models.TextField(max_length=500)
+    price = models.IntegerField()
+    brand = models.CharField(max_length=50)
+    stock = models.IntegerField()
+    is_available = models.BooleanField(default=True)
+    category_name = models.ForeignKey(Category, on_delete=models.CASCADE)
+    created_date = models.DateTimeField(auto_now_add=True)
+    modified_date = models.DateTimeField(auto_now=True)
+
+
+    def get_url(self):
+        return reverse('product_detail', args=[self.category_name.slug, self.slug])
+
+    # def __str__(self):
+    #     return self.product_name
+    
+class Image(models.Model):
+    name_product = models.ForeignKey(Product,on_delete=models.CASCADE, related_name='related_image')
+    image = models.ImageField(upload_to='photos/product')
+
+    def __str__(self):
+        return f"Image for {self.name_product.product_name}"
