@@ -1,5 +1,8 @@
 from django.db import models
 from django.urls import reverse
+from django.utils.text import slugify
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 # Create your models here.
 class Category(models.Model):
@@ -15,6 +18,11 @@ class Category(models.Model):
 
     def __str__(self):
         return self.category
+    
+@receiver(pre_save, sender=Category)
+def generate_slug(sender, instance, *args, **kwargs):
+    if not instance.slug:
+        instance.slug = slugify(instance.category)
 
 class Product(models.Model):
     product_name = models.CharField(max_length=100)
@@ -24,13 +32,19 @@ class Product(models.Model):
     brand = models.CharField(max_length=50)
     stock = models.IntegerField()
     is_available = models.BooleanField(default=True)
+    is_delete = models.BooleanField(default=False)
     category_name = models.ForeignKey(Category, on_delete=models.CASCADE)
     created_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now=True)
 
-
     def get_url(self):
         return reverse('product_detail', args=[self.category_name.slug, self.slug])
+    
+
+@receiver(pre_save, sender=Product)
+def generated_slug(sender, instance, *args, **kwargs):
+    if not instance.slug:
+        instance.slug = slugify(instance.product_name)
 
     # def __str__(self):
     #     return self.product_name

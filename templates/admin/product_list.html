@@ -1,0 +1,93 @@
+{% extends 'admin_base.html' %}
+
+{% load static %}
+
+
+{% block content %}
+
+
+        <!-- product list table  -->
+<head>
+    <style>
+     
+
+    </style>
+</head>
+
+    
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="row">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">PRODUCT LIST</h3>
+            <div class="table-responsive pt-3">
+
+                <table class="table table-bordered">
+
+                    <thead class="thead-dark">
+
+                                <tr>
+                                    <th>Product Name</th>
+                                    <th class="text-break">Description</th>
+                                    <th>Price</th>
+                                    <th>Brand</th>
+                                    <th>Stock</th>
+                                    <th>Is Available</th>
+                                    <th>Category</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in products %}
+                                <tr>
+                                    <td>{{ product.product_name }}</td>
+                                    <td>{{ product.description|truncatechars:100|safe|linebreaksbr }}</td>
+                                    <td>${{ product.price }}</td>
+                                    <td>{{ product.brand }}</td>
+                                    <td>{{ product.stock }}</td>
+                                    <td>{{ product.is_available }}</td>
+                                    <td>{{ product.category_name.category }}</td>
+                                    <td>
+                                        <form action="" method="post" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger btn-sm">EDIT</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+</div>
+</div>
+</div>
+
+
+    <!-- plugins:js -->
+    <script src="{% static 'vendors/js/vendor.bundle.base.js' %}"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <script src="{% static 'vendors/chart.js/Chart.min.js' %}"></script>
+    <script src="{% static 'vendors/bootstrap-datepicker/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'vendors/progressbar.js/progressbar.min.js' %}"></script>
+
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="{% static 'js/off-canvas.js' %}"></script>
+    <script src="{% static 'js/hoverable-collapse.js' %}"></script>
+    <script src="{% static 'js/template.js' %}"></script>
+    <script src="{% static 'js/settings.js' %}"></script>
+    <script src="{% static 'js/todolist.js' %}"></script>
+    <!-- endinject -->
+    <!-- Custom js for this page-->
+    <script src="{% static 'js/dashboard.js' %}"></script>
+    <script src="{% static 'js/Chart.roundedBarCharts.js' %}"></script>
+    <!-- End custom js for this page-->
+
+    
+    {% endblock %}

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from django.contrib.messages import constants as messages
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,16 +40,22 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Store',
     'Accounts',
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+]
+
+INTERNAL_IPS = [ 
+    "127.0.0.1",
 ]
 
 ROOT_URLCONF = 'Mobkart.urls'
@@ -73,6 +80,10 @@ TEMPLATES = [
 WSGI_APPLICATION = 'Mobkart.wsgi.application'
 
 AUTH_USER_MODEL = 'Accounts.Account'
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -129,7 +140,28 @@ STATICFILES_DIRS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR/'media'
 
+
+MESSAGE_TAGS = {
+    messages.SUCCESS: "success",
+    messages.WARNING: "warning",
+    messages.ERROR: "error",
+}
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+
+SESSION_COOKIE_NAME = "mobkart" 
+SESSION_COOKIE_SECURE = True  
+SESSION_COOKIE_HTTPONLY = True  
+SESSION_COOKIE_SAMESITE = "Lax"  
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True 
+
+# session duration
+# SESSION_COOKIE_AGE = 3600
+
+SESSION_SERIALIZER = "django.contrib.sessions.serializers.JSONSerializer"
