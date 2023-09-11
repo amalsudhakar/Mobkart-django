@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Store',
     'Accounts',
+    'Carts',
     "debug_toolbar",
 ]
 
@@ -72,6 +73,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'Store.context_processors.menu_links',
+                'Carts.context_processors.counter',
             ],
         },
     },
