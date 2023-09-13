@@ -39,7 +39,41 @@ class Product(models.Model):
 
     def get_url(self):
         return reverse('product_detail', args=[self.category_name.slug, self.slug])
+
+    def __str__(self):
+        return self.product_name
     
+
+class VariationManager(models.Manager):
+    def colors(self):
+        return super(VariationManager, self).filter(variation_category='color', is_active=True)
+
+
+    def storage(self):
+        return super(VariationManager, self).filter(variation_category='storage', is_active=True)
+
+
+variation_category_choice = (
+    ('color','color'),
+    ('storage','storage'),
+)
+
+
+class Variation(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    variation_category = models.CharField(max_length=50, choices=variation_category_choice)
+    variation_value = models.CharField(max_length=50)
+    is_active = models.BooleanField(default=True)
+    created_date = models.DateField(auto_now=True)
+
+    objects = VariationManager()
+
+
+    def __str__(self):
+        return self.variation_value
+    
+
+
 
 @receiver(pre_save, sender=Product)
 def generated_slug(sender, instance, *args, **kwargs):
