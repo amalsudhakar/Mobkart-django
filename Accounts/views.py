@@ -4,7 +4,16 @@ from .forms import RegistrationForm
 from django.contrib import messages, auth
 from functools import wraps
 from django.views.decorators.cache import cache_control
+from django.contrib.auth.decorators import login_required
 
+# verifications
+
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import EmailMessage
 
 
 def redirect_authenticated_user(view_func):
@@ -16,7 +25,6 @@ def redirect_authenticated_user(view_func):
     return _wrapped_view
 
 
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
@@ -27,11 +35,11 @@ def register(request):
             phone_number = form.cleaned_data['phone_number']
             password = form.cleaned_data['password']
             username = email.split("@")[0]
-
             user = Account.objects.create_user(
                 first_name=first_name, last_name=last_name, email=email, password=password, username=username)
             user.phone_number = phone_number
             user.save()
+
             messages.success(request, 'Registration Success')
             return redirect('register')
     else:
@@ -57,7 +65,8 @@ def login(request):
             request.session['uid'] = user.id
             request.session['first_name'] = user.first_name
             request.session['last_name'] = user.last_name
-            return redirect('store')
+            messages.success(request, 'You are Logged in')
+            return redirect('dashboard')
         else:
             messages.error(request, 'invalid login credentials')
             return redirect('login')
@@ -67,7 +76,13 @@ def login(request):
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@login_required(login_url = 'login')
 def logout(request):
     auth.logout(request)
     messages.success(request, 'You are logged out')
     return redirect('login')
+
+
+@login_required(login_url = 'login')
+def dashboard(request):
+    return render(request, 'Accounts/dashboard.html')
