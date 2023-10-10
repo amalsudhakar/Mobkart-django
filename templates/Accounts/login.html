@@ -16,10 +16,10 @@
       <form action="{% url 'login' %}" method="POST">
         {% csrf_token %}
         <div class="form-group">
-          <input type="email" class="form-control" placeholder="Email Address" name="email" autocomplete="off">
+          <input type="email" class="form-control" placeholder="Email Address" name="email" autocomplete="off" required>
         </div> <!-- form-group// -->
         <div class="form-group">
-          <input type="password" class="form-control" placeholder="Password" name="password" autocomplete="off">
+          <input type="password" class="form-control" placeholder="Password" name="password" autocomplete="off" required>
         </div> <!-- form-group// -->
 
         <div class="form-group">
