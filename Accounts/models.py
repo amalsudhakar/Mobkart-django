@@ -71,3 +71,18 @@ class Account(AbstractBaseUser):
 
     def has_module_perms(self, add_label):
         return True
+    
+
+class AddressBook(models.Model):
+    name = models.CharField(max_length=30)
+    address_line_1 = models.CharField(max_length=150)
+    address_line_2 = models.CharField(blank=True, max_length=150)
+    city = models.CharField(max_length=150)
+    state = models.CharField(max_length=150)
+    country = models.CharField(max_length=150)
+    pincode = models.CharField(max_length=150)
+    phone = models.CharField(max_length=150)
+    status = models.BooleanField(default=False)
+    
+    def __str__(self) -> str:
+        return f'{self.address_line_1} {self.address_line_2}'

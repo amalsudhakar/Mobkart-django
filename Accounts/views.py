@@ -138,7 +138,6 @@ def logout(request):
 def dashboard(request):
     orders = Order.objects.order_by('-created_at').filter(user_id=request.user.id, is_ordered=True)
     orders_count = orders.count()
-    print(orders_count)
     uid = request.session.get('uid')
     user = Account.objects.get(pk=uid)
     context = {
@@ -154,3 +153,7 @@ def my_orders(request):
         'orders': orders,
     }
     return render(request, 'orders/my_orders.html', context)
+
+
+def address_book(request):
+    return render(request, 'Accounts/address_book.html')
