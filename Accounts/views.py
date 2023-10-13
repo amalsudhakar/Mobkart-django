@@ -1,4 +1,5 @@
-from django.shortcuts import redirect, render, HttpResponse
+from django.shortcuts import redirect, render
+from django.http import JsonResponse
 from .models import Account, AddressBook
 from .forms import RegistrationForm, AddressForm
 from django.contrib import messages, auth
@@ -126,6 +127,7 @@ def login(request):
     return render(request, "Accounts/login.html")
 
 
+# Logout view
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url="login")
 def logout(request):
@@ -134,64 +136,110 @@ def logout(request):
     return redirect("login")
 
 
+# Dashboard of user
 @login_required(login_url="login")
 def dashboard(request):
-    orders = Order.objects.order_by('-created_at').filter(user_id=request.user.id, is_ordered=True)
+    orders = Order.objects.order_by("-created_at").filter(
+        user_id=request.user.id, is_ordered=True
+    )
     orders_count = orders.count()
-    uid = request.session.get('uid')
+    uid = request.session.get("uid")
     user = Account.objects.get(pk=uid)
     context = {
-        'orders_count': orders_count,
-        'user': user,
+        "orders_count": orders_count,
+        "user": user,
     }
     return render(request, "Accounts/dashboard.html", context)
 
 
+# My orders page in user profile
 def my_orders(request):
-    orders = Order.objects.filter(user_id=request.user.id, is_ordered=True).order_by('-created_at')
+    orders = Order.objects.filter(user_id=request.user.id, is_ordered=True).order_by(
+        "-created_at"
+    )
     context = {
-        'orders': orders,
+        "orders": orders,
     }
-    return render(request, 'orders/my_orders.html', context)
+    return render(request, "orders/my_orders.html", context)
 
 
+# View address page
 def address_book(request):
     current_user = request.user
     address = AddressBook.objects.filter(user=current_user, is_deleted=False)
     context = {
-        'address': address,
+        "address": address,
     }
-    return render(request, 'Accounts/address_book.html', context)
+    return render(request, "Accounts/address_book.html", context)
 
 
+# Add address form
 def add_address(request):
     form = AddressForm()
-    context ={
-        'form': form,
+    context = {
+        "form": form,
     }
-    return render(request, 'Accounts/add_address.html', context)
+    return render(request, "Accounts/add_address.html", context)
 
 
+# Add address
 def save_address(request):
     current_user = request.user
     if request.method == "POST":
-            print(current_user)
-            user = current_user
-            name = request.POST['name']
-            address_line_1 = request.POST['address_line_1']
-            address_line_2 = request.POST['address_line_2']
-            city = request.POST['city']
-            state = request.POST['state']
-            country = request.POST['country']
-            pincode = request.POST['pincode']
-            phone = request.POST['phone']
-            status = request.POST['status']
-            address = AddressBook(user=user, name=name, address_line_1=address_line_1, address_line_2=address_line_2, city=city, state=state, phone=phone, pincode=pincode, status=status, country=country)
-            address.save()
-            if status == 'True':
-                AddressBook.objects.filter(user=user).exclude(pk=address.pk).update(status='False') 
-            
-            return redirect('address_book')
-    
+        print(current_user)
+        user = current_user
+        name = request.POST["name"]
+        address_line_1 = request.POST["address_line_1"]
+        address_line_2 = request.POST["address_line_2"]
+        city = request.POST["city"]
+        state = request.POST["state"]
+        country = request.POST["country"]
+        pincode = request.POST["pincode"]
+        phone = request.POST["phone"]
+        status = request.POST["status"]
+        address = AddressBook(
+            user=user,
+            name=name,
+            address_line_1=address_line_1,
+            address_line_2=address_line_2,
+            city=city,
+            state=state,
+            phone=phone,
+            pincode=pincode,
+            status=status,
+            country=country,
+        )
+        address.save()
+        if status == "True":
+            AddressBook.objects.filter(user=user).exclude(pk=address.pk).update(
+                status="False"
+            )
+
+        return redirect("address_book")
+
     else:
-        return redirect('add_address')
+        return redirect("add_address")
+
+
+# Activate address
+def activate_address(request):
+    a_id = str(request.GET["id"])
+    AddressBook.objects.update(status=False)
+    AddressBook.objects.filter(id=a_id).update(status=True)
+    return JsonResponse({"bool": True})
+
+
+# Delete address
+def delete_address(request, aid):
+    address = AddressBook.objects.get(id=aid)
+    other_addresses = AddressBook.objects.filter(status=False).exclude(id=aid)
+
+    if other_addresses.exists():
+        # Update the status of the first other address to True
+        up_add = other_addresses.first()
+        up_add.status = True
+        up_add.save()
+
+    # Delete the specified address
+    address.delete()
+    return redirect("address_book")
