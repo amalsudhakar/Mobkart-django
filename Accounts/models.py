@@ -74,6 +74,7 @@ class Account(AbstractBaseUser):
     
 
 class AddressBook(models.Model):
+    user = models.ForeignKey(Account, on_delete=models.CASCADE)
     name = models.CharField(max_length=30)
     address_line_1 = models.CharField(max_length=150)
     address_line_2 = models.CharField(blank=True, max_length=150)
@@ -83,6 +84,11 @@ class AddressBook(models.Model):
     pincode = models.CharField(max_length=150)
     phone = models.CharField(max_length=150)
     status = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
     
     def __str__(self) -> str:
         return f'{self.address_line_1} {self.address_line_2}'
+    
+    def full_address(self):
+        return f'{self.address_line_1} {self.address_line_2}'
+        

@@ -1,6 +1,6 @@
-from django.shortcuts import redirect, render
-from .models import Account
-from .forms import RegistrationForm
+from django.shortcuts import redirect, render, HttpResponse
+from .models import Account, AddressBook
+from .forms import RegistrationForm, AddressForm
 from django.contrib import messages, auth
 from functools import wraps
 from django.views.decorators.cache import cache_control
@@ -156,4 +156,42 @@ def my_orders(request):
 
 
 def address_book(request):
-    return render(request, 'Accounts/address_book.html')
+    current_user = request.user
+    address = AddressBook.objects.filter(user=current_user, is_deleted=False)
+    context = {
+        'address': address,
+    }
+    return render(request, 'Accounts/address_book.html', context)
+
+
+def add_address(request):
+    form = AddressForm()
+    context ={
+        'form': form,
+    }
+    return render(request, 'Accounts/add_address.html', context)
+
+
+def save_address(request):
+    current_user = request.user
+    if request.method == "POST":
+            print(current_user)
+            user = current_user
+            name = request.POST['name']
+            address_line_1 = request.POST['address_line_1']
+            address_line_2 = request.POST['address_line_2']
+            city = request.POST['city']
+            state = request.POST['state']
+            country = request.POST['country']
+            pincode = request.POST['pincode']
+            phone = request.POST['phone']
+            status = request.POST['status']
+            address = AddressBook(user=user, name=name, address_line_1=address_line_1, address_line_2=address_line_2, city=city, state=state, phone=phone, pincode=pincode, status=status, country=country)
+            address.save()
+            if status == 'True':
+                AddressBook.objects.filter(user=user).exclude(pk=address.pk).update(status='False') 
+            
+            return redirect('address_book')
+    
+    else:
+        return redirect('add_address')

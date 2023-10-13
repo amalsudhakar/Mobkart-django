@@ -12,37 +12,38 @@
                 <article class="card">
                     <header class="card-header">
                         <strong class="d-inline-block mr-3">Saved Address</strong>
-                        <a href="" class="float-right btn btn-sm btn-success"><i class="fa fa-plus"></i></a>
+                        <a href="{% url 'add_address' %}" class="float-right btn btn-sm btn-success"><i
+                                class="fa fa-plus"></i></a>
                     </header>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-12">
-
-                                <div class="col-md-4">
-                                    <div class="card mb-3  address">
-                                        <div class="card-body">
-                                            <p class="card-text">sfddsf</p>
-                                            <p class="card-text">sdgagsgs</p>
-                                        </div>
-                        
-                                        <div class="card-footer">
-                                            <i class="fa fa-check-circle text-successcheck"></i>
-                                            <button style="display:none;" data-address="" class="btn btn-sm btn-info activate-address actbtn">Activate</button>
-                                            <a href="" class="float-right"><i class="fa fa-edit"></i></a>
-                                        </div>
-                              
-                                        <div class="card-footer footer">
-                                            <i style="display:none;" class="fa fa-check-circle text-success ccheck"></i>
-                                            <button data-address="" class="btn btn-sm btn-info activate-address actbtn">Activate</button>
-                                            <a href="" class="float-right"><i class="fa fa-edit"></i></a>
-                                        </div>
-                             
+                            {% for add in address %}
+                            <div class="col-md-4">
+                                <div class="card mb-3 address">
+                                    <div class="card-body">
+                                            <a href="" class="float-right btn btn-sm btn-danger"><i class="far fa-window-close"></i></a>
+                                        <p class="card-text">{{ add.name }}</p>
+                                        <p class="card-text">{{ add.full_address }}</p>
+                                        <p class="card-text">{{ add.phone }}</p>
+                                    </div>
+                                    <div class="card-footer">
+                                        <i class="fa fa-check-circle text-success check"></i>
+                                        <button style="display: none;" data-address=""
+                                            class="btn btn-sm btn-info activate-address actbtn">Activate</button>
+                                        <a href="" class="float-right"><i class="fa fa-edit"></i></a>
+                                    </div>
+                                    <div class="card-footer footer">
+                                        <i style="display: none;" class="fa fa-check-circle text-success ccheck"></i>
+                                        <button data-address=""
+                                            class="btn btn-sm btn-info activate-address actbtn">Activate</button>
+                                        <a href="" class="float-right"><i class="fa fa-edit"></i></a>
                                     </div>
                                 </div>
-                           
                             </div>
+                            {% endfor %}
                         </div>
                     </div>
+                    
                 </article> <!-- order-group.// -->
             </main>
         </div> <!-- row.// -->

@@ -10,5 +10,7 @@ urlpatterns = [
      path('', views.dashboard, name='dashboard'),
      path('my_orders/', views.my_orders, name='my_orders'),
      path('address_book/', views.address_book, name='address_book'),
+     path('add_address/', views.add_address, name='add_address'),
+     path('save_address/', views.save_address, name='save_address'),
 
 ]
