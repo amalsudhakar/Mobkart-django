@@ -22,8 +22,9 @@
                                           <tr>
                                             <th scope="col">Order #</th>
                                             <th scope="col">Billing Name</th>
-                                            <th scope="col">Phone</th>
+                                            <th scope="col">Payment</th>
                                             <th scope="col">Order Total</th>
+                                            <th scope="col">Discount</th>
                                             <th scope="col">Date</th>
                                           </tr>
                                         </thead>
@@ -33,9 +34,10 @@
                                         {% for order in orders %}
                                           <tr>
                                             <th scope="row">{{ order.order_number }}</th>
-                                            <td>{{ order.full_name }}</td>
-                                            <td>{{ order.phone }}</td>
+                                            <td>{{ order.name }}</td>
+                                            <td>{{ order.payment.payment_method }}</td>
                                             <td>{{ order.order_total }}</td>
+                                            <td>{{ order.discount }}</td>
                                             <td>{{ order.created_at }}</td>
                                           </tr>
                                           {% endfor %}

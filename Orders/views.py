@@ -1,15 +1,80 @@
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from Carts.models import CartItem
-from .models import Order, Coupon
+from .models import Order, Coupon, Payment, OrderProduct, Product
 from Accounts.models import AddressBook
 import datetime
-from django.views.decorators.http import require_POST
+import secrets
 # Create your views here.
 
 
-def payments(request):
-    return render(request, 'orders/payments.html')
+def payment(request):
+    if request.method == 'POST':
+        current_user = request.user
+        coupon_code = request.POST.get("applied_coupon")
+        payment_method = request.POST.get('paymentMethod')
+        order_id = request.POST.get('order_address_id')
+        order_num = request.POST.get("order_number")
+        print(order_num)
+        if payment_method == 'COD':
+            order = Order.objects.get(user=current_user, is_ordered = False, order_number=order_num )
+            payment = Payment(
+                user = current_user,
+                payment_id = secrets.token_hex(8),
+                payment_method = 'COD',
+                amount_paid = order.order_total,
+                status = 'COMPLETED',
+            )
+            payment.save()
+            order.payment = payment
+            order.is_ordered = True
+            order.status = 'Completed'
+            order.save()
+
+            # moving cart item to the OrderProduct table
+            cart_item = CartItem.objects.filter(user=current_user)
+
+            for item in cart_item:
+                orderproduct = OrderProduct()
+                orderproduct.order_id = order.id
+                orderproduct.payment = payment
+                orderproduct.user_id = current_user.id
+                orderproduct.product_id = item.product_id
+                orderproduct.quantity = item.quantity
+                orderproduct.product_price = item.product.price
+                orderproduct.ordered = True
+                orderproduct.save()
+
+                cart_item = CartItem.objects.get(id=item.id)
+                product_variation = cart_item.variations.all()
+                orderproduct = OrderProduct.objects.get(id=orderproduct.id)
+                orderproduct.variations.set(product_variation)
+                orderproduct.save()
+
+                # reduce the quantity of product from the product table
+                product = Product.objects.get(id=item.product_id)
+                product.stock -= item.quantity
+                product.save()
+
+            # clear the cart if the product is ordered
+            CartItem.objects.filter(user=current_user).delete()
+
+
+            return redirect('order_completed')
+
+
+        elif payment_method == "PayPal":
+            print('PayPal payment')
+            # You can add your logic for handling PayPal payments here
+        else:
+            # Handle other payment methods or errors
+            return HttpResponse("Invalid payment method")
+
+        # If everything went well, you can return a success response or redirect
+        return HttpResponse("Payment successful")  # You can customize this response
+    else:
+        # Handle other HTTP methods or errors
+        return HttpResponse("Invalid request method")
 
 
 
@@ -103,8 +168,14 @@ def validate_coupon(request):
     try:
         order = Order.objects.get(id=order_id)
         order.order_total = new_total
+        order.discount = discount
         order.save()
     except Order.DoesNotExist:
         return JsonResponse({'valid': False, 'message': 'Order not found'})
 
     return JsonResponse({'valid': True, 'new_total': new_total})
+
+
+def order_completed(request):
+    return render(request, 'Orders/order_completed.html')
+
