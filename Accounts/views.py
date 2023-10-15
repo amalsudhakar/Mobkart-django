@@ -233,12 +233,12 @@ def activate_address(request):
 def delete_address(request, aid):
     address = AddressBook.objects.get(id=aid)
     other_addresses = AddressBook.objects.filter(status=False).exclude(id=aid)
-
-    if other_addresses.exists():
-        # Update the status of the first other address to True
-        up_add = other_addresses.first()
-        up_add.status = True
-        up_add.save()
+    if address.status is True:
+        if other_addresses.exists():
+            # Update the status of the first other address to True
+            up_add = other_addresses.first()
+            up_add.status = True
+            up_add.save()
 
     # Delete the specified address
     address.delete()

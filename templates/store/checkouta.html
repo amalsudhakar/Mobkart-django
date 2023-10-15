@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+
+
+
+
+
+<section class="section-content padding-y bg">
+    <div class="container">
+
+        <!-- ============================ COMPONENT 1 ================================= -->
+
+        <div class="row">
+            <aside class="col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">Billing Address</h4>
+                        <form action="{% url 'place_order' %}" method="POST">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <div class="updated-address">
+                                    {% for add in address %}
+                                    <div class="form-check">
+                                        <div class="border border-secondary p-3 mb-3">
+                                            <input type="radio" name="selected_address" id="add{{ add.id }}"
+                                                value="{{ add.id }}" {% if add.status %} checked {% endif %}>
+                                            <label for="add{{ add.id }}">{{ add.name }},{{ add.full_address }},<br>
+                                                {{ add.city }},{{ add.state }}<br>{{ add.phone }}<br></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                <button type="button" id="add-new-address-btn" class="btn btn-primary btn-block"
+                                    data-toggle="modal" data-target="#newAddressModal">Add New Address</button>
+
+                            </div>
+                    </div> <!-- card.// -->
+
+            </aside> <!-- col.// -->
+
+            <!-- Modal for adding a new address -->
+            <div class="modal fade" id="newAddressModal" tabindex="-1" role="dialog"
+                aria-labelledby="newAddressModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="newAddressModalLabel">Add New Address</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="new-address-form">
+                                <div class="form-group">
+                                    <label for="name">Name:</label>
+                                    <input type="text" id="name" name="name" class="form-control" required>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="address_line_1">Address Line 1:</label>
+                                        <input type="text" id="address_line_1" name="address_line_1"
+                                            class="form-control" required>
+                                    </div>
+                                    <div class="form-group col-lg-6">
+                                        <label for="address_line_2">Address Line 2:</label>
+                                        <input type="text" id="address_line_2" name="address_line_2"
+                                            class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="state">State:</label>
+                                        <input type="text" id="state" name="state" class="form-control" required>
+                                    </div>
+                                    <div class="form-group col-lg-6">
+                                        <label for="city">City:</label>
+                                        <input type="text" id="city" name="city" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label for="pincode">Pincode:</label>
+                                        <input type="text" id="pincode" name="pincode" class="form-control" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="country">Country:</label>
+                                        <input type="text" id="country" name="country" class="form-control" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="phone">Phone:</label>
+                                        <input type="number" id="phone" name="phone" class="form-control" required>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" id="saveNewAddress" class="btn btn-primary">Save Address</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <aside class="col-lg-6">
+
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table table-borderless table-shopping-cart">
+                            <thead class="text-muted">
+
+                                <tr class="small text-uppercase">
+                                    <th scope="col">Product</th>
+                                    <th scope="col" width="120">Quantity</th>
+                                    <th scope="col" width="120">Price</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cart_item in cart_items %}
+                                <tr>
+
+                                    <td>
+                                        <figure class="itemside align-items-center">
+                                            {% with image=cart_item.product.related_image.first %}
+                                            {% if image %}
+                                            <div class="aside"><img src="{{ image.image.url }}"
+                                                    alt="{{ cart_item.product.product_name }} Image" class="img-sm">
+                                            </div>
+                                            {% endif %}
+                                            {% endwith %}
+                                            <figcaption class="info">
+                                                <a href="{{ cart_item.product.get_url }}"
+                                                    class="title text-dark">{{cart_item.product.product_name}}</a>
+                                                {% if cart_item.variations.all %}
+                                                {% for item in cart_item.variations.all %}
+                                                <p class="text-muted small">{{ item.variation_category | capfirst }} :
+                                                    {{ item.variation_value | capfirst }}<br></p>
+                                                {% endfor %}
+                                                {% else %}
+                                                <p class="text-muted small">{{ cart_item.product.category_name |
+                                                    capfirst }} : {{ cart_item.product.brand | capfirst }}<br></p>
+                                                {% endif %}
+                                            </figcaption>
+                                        </figure>
+                                    </td>
+                                    <td>
+                                        <label>{{cart_item.quantity}}</label>
+                                    </td>
+                                    <td>
+                                        <div class="price-wrap">
+                                            <var class="price">${{ cart_item.sub_total }}</var>
+                                            <small class="text-muted"> ${{cart_item.product.price}} each </small>
+                                        </div> <!-- price-wrap .// -->
+                                    </td>
+
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                        <button type="submit" name="submit" class="btn btn-primary btn-block"> Continue</button>
+
+                        </form>
+
+                    </div> <!-- card-body.// -->
+                </div> <!-- card.// -->
+
+            </aside> <!-- col.// -->
+
+
+        </div> <!-- row.// -->
+    </div> <!-- container .//  -->
+</section>
+
+<script>
+    $(document).ready(function () {
+        // When the "Save Address" button in the modal is clicked
+        $("#saveNewAddress").on("click", function () {
+            // Get the new address data from the modal form
+            var name = $("#name").val();
+            var address_line_1 = $("#address_line_1").val();
+            var address_line_2 = $("#address_line_2").val();
+            var state = $("#state").val();
+            var city = $("#city").val();
+            var pincode = $("#pincode").val();
+            var country = $("#country").val();
+            var phone = $("#phone").val();
+
+            // Send the new address data to the server using AJAX
+            $.ajax({
+                type: "POST",
+                url: "{% url 'save_new_address' %}",
+                data: {
+                    'name': name,
+                    'address_line_1': address_line_1,
+                    'address_line_2': address_line_2,
+                    'state': state,
+                    'city': city,
+                    'pincode': pincode,
+                    'country': country,
+                    'phone': phone,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                },
+                success: function (data) {
+                    if (data.id) {
+                        $("#name").val('');
+                        $("#address_line_1").val('');
+                        $("#address_line_2").val('');
+                        $("#state").val('');
+                        $("#city").val('');
+                        $("#pincode").val('');
+                        $("#country").val('');
+                        $("#phone").val('');
+
+
+                        $('#newAddressModal').modal('hide');
+
+                        // Optionally, you can update the billing section as well
+                        // Here's an example of how you can do that
+                        var newAddressHtml = `
+            <div class="form-check">
+                <div class="border border-secondary p-3 mb-3">
+                    <input type="radio" name="selected_address" id="add${data.id}" value="${data.id}" checked>
+                    <label for="add${data.id}">
+                        ${name}, ${address_line_1},<br>
+                        ${city}, ${state}<br>${phone}<br>
+                    </label>
+                </div>
+            </div>
+        `;
+
+                        // Append the new address to the address selection section
+                        $('.updated-address').append(newAddressHtml);
+
+                        alert('New address saved successfully!');
+                    }
+                },
+                error: function () {
+                    // Handle errors, if any
+                    alert('Failed to save the new address.');
+                }
+            });
+        });
+    });
+</script>
+
+
+
+
+
+
+{% endblock %}

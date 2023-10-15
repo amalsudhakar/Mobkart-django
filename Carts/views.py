@@ -3,6 +3,8 @@ from .models import Cart, CartItem
 from Store.models import Product, Variation
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
+from Accounts.models import AddressBook
+from django.http import JsonResponse
 
 # Create your views here.
 
@@ -195,11 +197,60 @@ def checkout(request, total=0, quantity=0, cart_items=None):
     except ObjectDoesNotExist:
         pass
 
+    address = AddressBook.objects.filter(user=request.user) 
+    print(request.user)
+    print(address)
     context = {
         'total': total,
         'quantity': quantity,
         'cart_items': cart_items,
         'tax': tax,
-        'grand_total': grand_total
+        'grand_total': grand_total,
+        'address': address
     }
     return render(request, 'store/checkout.html', context)
+
+
+def save_new_address(request):
+    if request.method == 'POST':
+        # Get the address data from the POST request
+        name = request.POST.get('name')
+        address_line_1 = request.POST.get('address_line_1')
+        address_line_2 = request.POST.get('address_line_2', '')
+        state = request.POST.get('state')
+        city = request.POST.get('city')
+        pincode = request.POST.get('pincode')
+        country = request.POST.get('country')
+        phone = request.POST.get('phone')
+
+        # Get the current user (make sure you have authentication set up)
+        user = request.user
+
+        if not (name and address_line_1 and state and city and pincode and country and phone):
+            return JsonResponse({'error': 'Invalid form data'})
+
+        # Create and save a new address
+        new_address = AddressBook.objects.create(
+            name=name,
+            address_line_1=address_line_1,
+            address_line_2=address_line_2,
+            state=state,
+            city=city,
+            pincode=pincode,
+            country=country,
+            phone=phone,
+            user=user,  # Set the user field to the current user
+            status=False  # Set the status as needed
+        )
+
+        return JsonResponse({
+            'id': new_address.id,
+            'name': new_address.name,
+            'city': new_address.city,
+            'state': new_address.state,
+            'phone': new_address.phone,
+        })
+
+    # Handle invalid form data
+    return JsonResponse({'error': 'Invalid form data'})
+

@@ -28,8 +28,7 @@ class Order(models.Model):
         Payment, on_delete=models.SET_NULL, blank=True, null=True
     )
     order_number = models.CharField(max_length=100)
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
     phone = models.CharField(max_length=15)
     email = models.EmailField(max_length=50)
     address_line_1 = models.CharField(max_length=50)
@@ -47,14 +46,12 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def full_name(self):
-        return f"{self.first_name} {self.last_name}"
 
     def full_address(self):
         return f"{self.address_line_1} {self.address_line_2}"
 
     def __str__(self) -> str:
-        return self.first_name
+        return self.name
 
 
 class OrderProduct(models.Model):
@@ -75,3 +72,12 @@ class OrderProduct(models.Model):
 
     def __str__(self) -> str:
         return self.product.product_name
+    
+
+class Coupon(models.Model):
+    coupon_code = models.CharField(max_length=50, unique=True)
+    amount = models.FloatField(max_length=10)
+    is_deleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.coupon_code
