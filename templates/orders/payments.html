@@ -113,10 +113,10 @@
                                             <div class="price-wrap">
                                                 <input type="text" name="item_sub_total"
                                                     value="{{ cart_item.sub_total }}" hidden>
-                                                <var class="price">${{ cart_item.sub_total }}</var>
+                                                <var class="price">₹{{ cart_item.sub_total }}</var>
                                                 <input type="text" name="item_price"
                                                     value="{{ cart_item.product.price }}" hidden>
-                                                <small class="text-muted"> ${{cart_item.product.price}} each </small>
+                                                <small class="text-muted"> ₹{{cart_item.product.price}} each </small>
                                             </div> <!-- price-wrap .// -->
                                         </td>
 
@@ -134,7 +134,7 @@
                         <div class="card-body">
                             <dl class="dlist-align">
                                 <dt>Total price:</dt>
-                                <dd class="text-right total-display">${{ total }}</dd>
+                                <dd class="text-right total-display">₹{{ total }}</dd>
                             </dl>
                             <dl class="dlist-align">
                                 <dt>Tax:</dt>
@@ -144,7 +144,7 @@
                                 <dt>Total:</dt>
                                 <dd class="text-right text-dark b">
                                     <input type="hidden" id="orderID" value="{{ order.id }}">
-                                    <strong class="grand-total" id="grandTotal">{{ grand_total }}</strong>
+                                    <strong class="grand-total" id="grandTotal">₹{{ grand_total }}</strong>
                                     <input type="text" name="item_grand_total" value="{{ grand_total }}" hidden>
                                 </dd>
                             </dl>

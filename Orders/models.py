@@ -16,6 +16,15 @@ class Payment(models.Model):
         return self.payment_id
 
 
+class Coupon(models.Model):
+    coupon_code = models.CharField(max_length=50, unique=True)
+    amount = models.FloatField(max_length=10)
+    is_deleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.coupon_code
+
+
 class Order(models.Model):
     STATUS = (
         ("New", "New"),
@@ -46,7 +55,7 @@ class Order(models.Model):
     is_ordered = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    coupon = models.ForeignKey(Coupon, on_delete=models.CASCADE, blank=True, null=True)
 
     def full_address(self):
         return f"{self.address_line_1} {self.address_line_2}"
@@ -73,10 +82,3 @@ class OrderProduct(models.Model):
         return self.product.product_name
     
 
-class Coupon(models.Model):
-    coupon_code = models.CharField(max_length=50, unique=True)
-    amount = models.FloatField(max_length=10)
-    is_deleted = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.coupon_code

@@ -17,13 +17,25 @@ def payment(request):
         order_num = request.POST.get("order_number")
         print(order_num)
         if payment_method == 'COD':
-            order = Order.objects.get(user=current_user, is_ordered = False, order_number=order_num )
+            order = Order.objects.get(user=current_user, is_ordered=False, order_number=order_num)
+            # Check if any product is out of stock before creating the payment
+            cart_items = CartItem.objects.filter(user=current_user)
+            out_of_stock_products = []
+
+            for item in cart_items:
+                product = Product.objects.get(id=item.product_id)
+                if product.stock < item.quantity:
+                    out_of_stock_products.append(product.product_name)
+
+            if out_of_stock_products:
+                return render(request, 'Orders/out_of_stock.html')
+
             payment = Payment(
-                user = current_user,
-                payment_id = secrets.token_hex(8),
-                payment_method = 'COD',
-                amount_paid = order.order_total,
-                status = 'COMPLETED',
+                user=current_user,
+                payment_id=secrets.token_hex(8),
+                payment_method='COD',
+                amount_paid=order.order_total,
+                status='COMPLETED',
             )
             payment.save()
             order.payment = payment
@@ -31,10 +43,10 @@ def payment(request):
             order.status = 'Completed'
             order.save()
 
-            # moving cart item to the OrderProduct table
-            cart_item = CartItem.objects.filter(user=current_user)
+            # Continue with adding products to the order and reducing stock
 
-            for item in cart_item:
+            # moving cart item to the OrderProduct table
+            for item in cart_items:
                 orderproduct = OrderProduct()
                 orderproduct.order_id = order.id
                 orderproduct.payment = payment
@@ -51,18 +63,15 @@ def payment(request):
                 orderproduct.variations.set(product_variation)
                 orderproduct.save()
 
-                # reduce the quantity of product from the product table
+                # Reduce the quantity of the product from the product table
                 product = Product.objects.get(id=item.product_id)
                 product.stock -= item.quantity
                 product.save()
 
-            # clear the cart if the product is ordered
+            # Clear the cart if the products are ordered
             CartItem.objects.filter(user=current_user).delete()
 
-
             return redirect('order_completed')
-
-
         elif payment_method == "PayPal":
             print('PayPal payment')
             # You can add your logic for handling PayPal payments here
@@ -75,6 +84,7 @@ def payment(request):
     else:
         # Handle other HTTP methods or errors
         return HttpResponse("Invalid request method")
+
 
 
 
@@ -150,11 +160,15 @@ def place_order(request, total=0, quantity=0):
 def validate_coupon(request):
     coupon_code = request.POST.get('coupon_code')
     current_total = float(request.POST.get('current_total'))
-
     # Query the coupon model to check if the coupon exists and get its discount value
     try:
         coupon = Coupon.objects.get(coupon_code=coupon_code)
         discount = coupon.amount
+        current_user = request.user
+        order = Order.objects.filter(user=current_user, is_ordered=True, coupon=coupon)
+        if order.exists():
+            return JsonResponse({'valid': False, 'message': 'Coupon already used'})
+    
     except Coupon.DoesNotExist:
         return JsonResponse({'valid': False, 'message': 'Invalid coupon code'})
 
@@ -169,6 +183,7 @@ def validate_coupon(request):
         order = Order.objects.get(id=order_id)
         order.order_total = new_total
         order.discount = discount
+        order.coupon = coupon
         order.save()
     except Order.DoesNotExist:
         return JsonResponse({'valid': False, 'message': 'Order not found'})
