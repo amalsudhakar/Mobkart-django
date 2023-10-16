@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages, auth
-from Store.models import Category, Product
+from Store.models import Category, Product, Variation
 from Accounts.models import Account
 from .forms import ProductForm
 
@@ -149,3 +149,49 @@ def blockedUser(request):
         'users' : users
     }
     return render(request, 'admin/blocked_users.html', context)
+
+
+def delete_view_variation(request):
+    variations = Variation.objects.all()
+    context ={
+        'variations': variations,
+    }
+    return render(request, 'admin/view_variation.html', context)
+
+
+def disable_variation(request):
+    variation_id = request.POST.get('variation_id')
+    variations = Variation.objects.get(id=variation_id)
+    variations.is_delete = True
+    variations.save()
+    return redirect('delete_view_variation')
+
+
+def enable_variation(request):
+    variation_id = request.POST.get('variation_id')
+    variations = Variation.objects.get(id=variation_id)
+    variations.is_delete = False
+    variations.save()
+    return redirect('delete_view_variation')
+
+
+def add_variation(request):
+    products = Product.objects.all()
+    context ={
+        'products': products,
+    }
+    return render(request, 'admin/add_variation.html', context)
+
+
+def save_variation(request):
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        variation_category = request.POST.get('variation_category')
+        varient = request.POST.get('varient')
+
+        product = Product.objects.get(id=product_id)
+        variations = Variation(product=product, variation_category=variation_category, variation_value=varient)
+        variations.save()
+
+        return redirect('add_variation')
+        

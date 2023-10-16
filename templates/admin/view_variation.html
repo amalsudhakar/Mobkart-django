@@ -1,8 +1,3 @@
-
-
-
-
-
 {% extends 'admin_base.html' %}
 
 {% load static %}
@@ -11,44 +6,53 @@
 {% block content %}
 
 
-        <!-- product list table  -->
+
+        <!-- variation list table  -->
 
 
         <div class="content-wrapper">
             <div class="card">
                 <div class="card-body">
-                    <h3 class="card-title">BLOCKED USERS</h3>
+                    <h3 class="card-title">VARIATIONS</h3>
                     <div class="table-responsive pt-3">
 
                         <table class="table table-bordered">
 
                             <thead class="thead-dark">
                                 <tr>
-                                    <th>First Name</th>
-                                    <th>Last Name</th>
-                                    <th>Email</th>
-                                    <th>Status</th>
+                                    <th>Product</th>
+                                    <th>Variation Type</th>
+                                    <th>Variant</th>
+                                    <th>Disable</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for user in users %}
-                                {% if user.is_superadmin != True %}
-                                {% if user.is_blocked is True %}
+                                {% for variation in variations %}
+                                {% if variation.is_active is True %}
                                 <tr>
-                                    <td>{{ user.first_name }}</td>
-                                    <td>{{ user.last_name }}</td>
-                                    <td>{{ user.email }}</td>
-                                    <td>                                    
-                                        <form action="{% url 'unblock_user' %}" method="post" class="d-inline">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="user_id" value="{{ user.id }}">
-                                            <button type="submit" class="btn btn-warning btn-sm">UNBLOCK</button>
-                                        </form>
-                                    </td>
+                                    <td>{{ variation.product.product_name }}</td>
+                                    <td>{{ variation.variation_category }}</td>
+                                    <td>{{ variation.variation_value }}</td>
+                                    {% if variation.is_delete is False %}
+                                        <td>                                    
+                                            <form action="{% url 'disable_variation' %}" method="post" class="d-inline">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="variation_id" value="{{ variation.id }}">
+                                                <button type="submit" class="btn btn-danger btn-sm">Disable</button>
+                                            </form>
+                                        </td>
+                                        {% else %}
+                                        <td>                                    
+                                            <form action="{% url 'enable_variation' %}" method="post" class="d-inline">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="variation_id" value="{{ variation.id }}">
+                                                <button type="submit" class="btn btn-primary btn-sm">Enable</button>
+                                            </form>
+                                        </td>
+                                    {% endif %}
                                 </tr>
                                 {% else %}
                                 <tr><td colspan="4" style="text-align: center; font-weight: bold;">No data found</td></tr>
-                                {% endif %}
                                 {% endif %}
                                 {% endfor %}
                                

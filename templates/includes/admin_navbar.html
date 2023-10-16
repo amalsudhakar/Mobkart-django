@@ -96,6 +96,22 @@
             </ul>
           </div>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" data-bs-toggle="collapse" href="#variation" aria-expanded="false" aria-controls="tables">
+            <i class="mdi mdi-chart-areaspline menu-icon"></i>
+            <span class="menu-title">Variation Management</span>
+            <i class="menu-arrow"></i>
+          </a>
+          <div class="collapse" id="variation">
+            <ul class="nav flex-column sub-menu">
+              <li class="nav-item"> <a class="nav-link" href="{% url 'delete_view_variation' %}">View / Delete</a></li>
+              <li class="nav-item"> <a class="nav-link" href="{% url 'add_variation' %}">Add variation</a></li>
+             
+            </ul>
+          </div>
+        </li>
+        
+        
       </ul>
     </nav>
 

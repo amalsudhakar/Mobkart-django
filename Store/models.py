@@ -44,35 +44,25 @@ class Product(models.Model):
         return self.product_name
     
 
-class VariationManager(models.Manager):
-    def colors(self):
-        return super(VariationManager, self).filter(variation_category='color', is_active=True)
-
-
-    def storage(self):
-        return super(VariationManager, self).filter(variation_category='storage', is_active=True)
-
-
-variation_category_choice = (
-    ('color','color'),
-    ('storage','storage'),
-)
+class VariationCategory(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    variation_name = models.CharField(max_length=50)
+    
+    def __str__(self):
+        return self.variation_name
 
 
 class Variation(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    variation_category = models.CharField(max_length=50, choices=variation_category_choice)
+    variation_category = models.ForeignKey(VariationCategory, on_delete=models.CASCADE)
     variation_value = models.CharField(max_length=50)
     is_active = models.BooleanField(default=True)
+    is_delete = models.BooleanField(default=False)
     created_date = models.DateField(auto_now=True)
-
-    objects = VariationManager()
-
+    stock = models.PositiveIntegerField(default=0)  # Add a stock field
 
     def __str__(self):
         return self.variation_value
-    
-
 
 
 @receiver(pre_save, sender=Product)

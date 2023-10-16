@@ -1,5 +1,6 @@
+from itertools import groupby
 from django.shortcuts import render, get_object_or_404
-from Store.models import Product, Category
+from Store.models import Product, Category, Variation
 from Carts.models import CartItem
 from Carts.views import _cart_id
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
@@ -40,12 +41,25 @@ def product_detail(request, category_slug, product_slug):
             category_name__slug=category_slug, slug=product_slug)
         in_cart = CartItem.objects.filter(cart__cart_id=_cart_id(request), product=single_product).exists()  # noqa: E501
 
+
+        variations = Variation.objects.filter(product=single_product)
+        grouped_variations = {}
+
+        for variation in variations:
+            category_name = variation.variation_category.variation_name
+            if category_name not in grouped_variations:
+                grouped_variations[category_name] = []
+            grouped_variations[category_name].append(variation)
+
+        in_cart = CartItem.objects.filter(cart__cart_id=_cart_id(request), product=single_product).exists()
+
     except Exception as e:
         raise e
 
     context = {
         'single_product': single_product,
-        'in_cart': in_cart
+        'in_cart': in_cart,
+        'grouped_variations': grouped_variations
     }
     return render(request, 'store/product_details.html', context)
 
