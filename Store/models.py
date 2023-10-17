@@ -47,9 +47,16 @@ class Product(models.Model):
 class VariationCategory(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     variation_name = models.CharField(max_length=50)
+    is_delete = models.BooleanField(default=False)
     
     def __str__(self):
         return self.variation_name
+    
+    def set_is_delete(self, is_deleted):
+        self.is_delete = is_deleted
+        self.save()
+        if is_deleted:
+            Variation.objects.filter(variation_category=self).update(is_delete=True)
 
 
 class Variation(models.Model):
