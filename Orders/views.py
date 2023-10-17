@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from Carts.models import CartItem
-from .models import Order, Coupon, Payment, OrderProduct, Product
+from .models import Order, Coupon, Payment, OrderProduct, Product, Variation
 from Accounts.models import AddressBook
 import datetime
 import secrets
@@ -43,7 +43,8 @@ def payment(request):
             order.status = 'Completed'
             order.save()
 
-            # Continue with adding products to the order and reducing stock
+            # Initialize a flag to check if variations are in stock
+            variations_in_stock = True
 
             # moving cart item to the OrderProduct table
             for item in cart_items:
@@ -58,16 +59,30 @@ def payment(request):
                 orderproduct.save()
 
                 cart_item = CartItem.objects.get(id=item.id)
-                product_variation = cart_item.variations.all()
-                orderproduct = OrderProduct.objects.get(id=orderproduct.id)
-                orderproduct.variations.set(product_variation)
+                product_variations = cart_item.variations.all()
+                orderproduct.variations.set(product_variations)
                 orderproduct.save()
 
-                # Reduce the quantity of the product from the product table
+                # Reduce the quantity of the product and its variations
                 product = Product.objects.get(id=item.product_id)
+                for variation in product_variations:
+                    variation_obj = Variation.objects.get(id=variation.id)
+                    if variation_obj.stock < item.quantity:
+                        variations_in_stock = False
+                        break
+                    else:
+                        variation_obj.stock -= item.quantity
+                        variation_obj.save()
+
+                if not variations_in_stock:
+                    break
+
                 product.stock -= item.quantity
                 product.save()
 
+            # Check if all variations were in stock
+            if not variations_in_stock:
+                return redirect('order_failed')
             # Clear the cart if the products are ordered
             CartItem.objects.filter(user=current_user).delete()
 
@@ -100,6 +115,7 @@ def place_order(request, total=0, quantity=0):
     for cart_item in cart_items:
         total += (cart_item.product.price * cart_item.quantity)
         quantity += cart_item.quantity
+
     tax = (2 * total / 100)
     grand_total = total + tax
 
@@ -144,7 +160,7 @@ def place_order(request, total=0, quantity=0):
         data.order_number = order_number
         data.save()
         order = Order.objects.get(user=current_user, is_ordered=False, order_number=order_number)
-
+        
         context = {
             'order': order,
             'cart_items': cart_items,
@@ -193,4 +209,8 @@ def validate_coupon(request):
 
 def order_completed(request):
     return render(request, 'Orders/order_completed.html')
+
+
+def order_failed(request):
+    return render(request, 'Orders/order_failed.html')
 

@@ -7,4 +7,5 @@ urlpatterns = [
     path('payment', views.payment, name='payment'),
     path('validate_coupon', views.validate_coupon, name='validate_coupon'),
     path('order_completed', views.order_completed, name='order_completed'),
+    path('order_failed', views.order_failed, name='order_failed'),
 ]

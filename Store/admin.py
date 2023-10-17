@@ -10,6 +10,10 @@ admin.site.register(Image)
 
 admin.site.register(Category)
 
-admin.site.register(Variation)
+class VariationAdmin(admin.ModelAdmin):
+    list_display = ['product', 'variation_category', 'variation_value', 'stock']
+
+
+admin.site.register(Variation, VariationAdmin)
 
 admin.site.register(VariationCategory)

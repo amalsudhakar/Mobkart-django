@@ -6,7 +6,7 @@ from Accounts.models import Account
 class Cart(models.Model):
     cart_id = models.CharField(max_length=250, unique=True)
     date_added = models.DateField(auto_now_add=True)
-
+    user = models.ForeignKey(Account, on_delete=models.CASCADE, null=True)  # Add this field to associate a cart with a user
 
     def __str__(self):
         return self.cart_id

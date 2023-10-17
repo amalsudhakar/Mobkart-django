@@ -9,13 +9,23 @@ from django.contrib import messages
 
 # Create your views here.
 
-
 def _cart_id(request):
-    cart = request.session.session_key
-    if not cart:
-        cart = request.session.create()
-    return cart
+    cart_id = request.session.get("cart_id")
+    if cart_id is None:
+        cart_id = request.session.session_key
+        request.session["cart_id"] = cart_id
+    return cart_id
 
+def get_or_create_cart(user, cart_id):
+    try:
+        cart = Cart.objects.get(cart_id=cart_id)
+    except Cart.DoesNotExist:
+        cart = Cart(cart_id=cart_id)
+        cart.save()
+    if user.is_authenticated and cart.user is None:
+        cart.user = user
+        cart.save()
+    return cart
 
 def add_cart(request, product_id):
     current_user = request.user
@@ -36,41 +46,31 @@ def add_cart(request, product_id):
                 except Variation.DoesNotExist:
                     pass
 
-    # Get all cart items for the current user
-    cart_items = CartItem.objects.filter(
-        product=product,
-        user=current_user,
-    )
+    cart_id = _cart_id(request)
+    cart = get_or_create_cart(current_user, cart_id)
 
     matching_cart_item = None
 
-    for cart_item in cart_items:
-        if cart_item.variations.count() == len(product_variations) and all(
-            variation in product_variations for variation in cart_item.variations.all()
-        ):
+    for cart_item in cart.cartitem_set.all():
+        if cart_item.product == product and set(cart_item.variations.all()) == set(product_variations):
             matching_cart_item = cart_item
-            # Add a breakpoint here
             break
 
     if matching_cart_item:
-        # If a matching item exists, increase its quantity
         matching_cart_item.quantity += 1
-        # Add a breakpoint here
         matching_cart_item.save()
-        messages.success(request, 'Item quantity updated successfully.')
     else:
-        # If no matching item exists, create a new cart item
-        cart_item = CartItem.objects.create(
-            user=current_user,
+        cart_item = CartItem(
+            user=current_user if current_user.is_authenticated else None,
             product=product,
+            cart=cart,
             quantity=1
         )
-        cart_item.variations.add(*product_variations)
         cart_item.save()
-        messages.success(request, 'Item added to the cart successfully.')
+        cart_item.variations.set(product_variations)
 
-    # Add a breakpoint here
     return redirect('cart')
+
 
 
 def remove_cart(request, product_id, cart_item_id):
@@ -210,5 +210,4 @@ def add_quantity(request, cart_item_id):
     cart_item = CartItem.objects.get(id=cart_item_id)
     cart_item.quantity += 1
     cart_item.save()
-    messages.success(request, 'Item quantity updated successfully.')
     return redirect('cart')
