@@ -10,6 +10,7 @@
         <div class="card">
             <div class="card-body ">
                 <h3 class="card-title  d-flex justify-content-center">ADD VARIATION</h3>
+                {% include 'includes/alerts.html' %}
                 <div class="forms-sample ">
                     <div class="form-group  d-flex justify-content-center">
                         <form action="{% url 'save_variation' %}" method="POST" class="forms-sample  col-md-6 ">
@@ -28,10 +29,10 @@
 
                             <div class="form-group">
                                 <label for="variation_category">Variation category</label>
-                                <input type="text" class="form-control" id="variation_category" name="variation_category"
-                                    required>
+                                <input type="text" class="form-control" id="variation_category"
+                                    name="variation_category" required>
                             </div>
-                            
+
                             <div><br></div>
                             <button type="submit" class="btn btn-primary">Submit</button>
                         </form>
@@ -43,25 +44,25 @@
     </div>
 </div>
 
-    <!-- plugins:js -->
-    <script src="{% static 'vendors/js/vendor.bundle.base.js' %}"></script>
-    <!-- endinject -->
-    <!-- Plugin js for this page -->
-    <script src="{% static 'vendors/chart.js/Chart.min.js' %}"></script>
-    <script src="{% static 'vendors/bootstrap-datepicker/bootstrap-datepicker.min.js' %}"></script>
-    <script src="{% static 'vendors/progressbar.js/progressbar.min.js' %}"></script>
+<!-- plugins:js -->
+<script src="{% static 'vendors/js/vendor.bundle.base.js' %}"></script>
+<!-- endinject -->
+<!-- Plugin js for this page -->
+<script src="{% static 'vendors/chart.js/Chart.min.js' %}"></script>
+<script src="{% static 'vendors/bootstrap-datepicker/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'vendors/progressbar.js/progressbar.min.js' %}"></script>
 
-    <!-- End plugin js for this page -->
-    <!-- inject:js -->
-    <script src="{% static 'js/off-canvas.js' %}"></script>
-    <script src="{% static 'js/hoverable-collapse.js' %}"></script>
-    <script src="{% static 'js/template.js' %}"></script>
-    <script src="{% static 'js/settings.js' %}"></script>
-    <script src="{% static 'js/todolist.js' %}"></script>
-    <!-- endinject -->
-    <!-- Custom js for this page-->
-    <script src="{% static 'js/dashboard.js' %}"></script>
-    <script src="{% static 'js/Chart.roundedBarCharts.js' %}"></script>
-    <!-- End custom js for this page-->
+<!-- End plugin js for this page -->
+<!-- inject:js -->
+<script src="{% static 'js/off-canvas.js' %}"></script>
+<script src="{% static 'js/hoverable-collapse.js' %}"></script>
+<script src="{% static 'js/template.js' %}"></script>
+<script src="{% static 'js/settings.js' %}"></script>
+<script src="{% static 'js/todolist.js' %}"></script>
+<!-- endinject -->
+<!-- Custom js for this page-->
+<script src="{% static 'js/dashboard.js' %}"></script>
+<script src="{% static 'js/Chart.roundedBarCharts.js' %}"></script>
+<!-- End custom js for this page-->
 
 {% endblock %}

@@ -1,9 +1,13 @@
+from itertools import groupby
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages, auth
-from Store.models import Category, Product, Variation, VariationCategory
+from Store.models import Category, Product, Variation, VariationCategory, ProductCategoryConnection
 from Accounts.models import Account
 from .forms import ProductForm
-
+from django.db.models import Sum
+from django.views.decorators.http import require_POST
+import json
 
 def adminPanel(request):
     if 'email' in request.session:
@@ -188,23 +192,34 @@ def save_variation(request):
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
         variation_category = request.POST.get('variation_category')
-        product = Product.objects.get(id=product_id)
+        
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return redirect('error_view')
 
-        # Check if the variation name already exists, considering case sensitivity
-        existing_variation = VariationCategory.objects.filter(
+        existing_category = VariationCategory.objects.filter(
             product=product,
             variation_name__iexact=variation_category
-        ).exists()
+        ).first()
 
-        if not existing_variation:
-            # If the variation doesn't exist, create and save it
-            variations = VariationCategory(product=product, variation_name=variation_category)
-            variations.save()
+        if existing_category:
+            messages.error(request, f"The category '{variation_category}' already exists for this product.")
+            return redirect('add_variation')
+
+        product_connection, created = ProductCategoryConnection.objects.get_or_create(product=product)
+        
+        if not created:
+            variation = VariationCategory(product=product, variation_name=variation_category)
+            variation.save()
+            product_connection.categories.add(variation)
         else:
-            # Handle the case where the variation already exists (you can return an error message)
-            return redirect('delete_view_variation')
+            variation = VariationCategory(product=product, variation_name=variation_category)
+            variation.save()
+            product_connection.categories.add(variation)
 
-        return redirect('add_variation')
+        return redirect('view_variation_category')
+
 
 
 def view_variation_category(request):
@@ -213,4 +228,49 @@ def view_variation_category(request):
         'variations': variations,
     }
     return render(request, 'admin/view_variation_category.html', context)
-        
+
+
+def updateview_variation(request):
+    products = Product.objects.filter(is_delete=False)
+    product_connections = ProductCategoryConnection.objects.filter(product__in=products)
+    
+    variations = Variation.objects.all()
+
+    context = {
+        'products': products,
+        'variations': variations,
+        'product_connections': product_connections,
+    }
+
+    return render(request, 'admin/update_stock.html', context)
+
+
+@require_POST
+def update_stock(request):
+    product_id = request.POST.get('product_id')
+    stock_amount = request.POST.get('stock_amount')
+    selected_category_values = []
+
+    for key, value in request.POST.items():
+        if key.startswith('selected_category_values_'):
+            selected_category_values.append(value)
+
+    try:
+        product = Product.objects.get(id=product_id)
+
+        # Update the stock for each selected variation
+        for variation_id in selected_category_values:
+            variation = Variation.objects.get(id=variation_id)
+            variation.stock += int(stock_amount)
+            variation.save()
+        product.stock += int(stock_amount)
+        product.save()
+        return redirect('delete_view_variation')
+
+    except Product.DoesNotExist:
+        return JsonResponse({'error': 'Product not found'})
+
+    except Variation.DoesNotExist:
+        return JsonResponse({'error': 'Variation not found'})
+
+    return JsonResponse({'error': 'Stock update failed'})

@@ -72,6 +72,14 @@ class Variation(models.Model):
         return self.variation_value
 
 
+class ProductCategoryConnection(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    categories = models.ManyToManyField(VariationCategory)
+
+    def __str__(self):
+        return f"Categories connected to {self.product}"
+    
+
 @receiver(pre_save, sender=Product)
 def generated_slug(sender, instance, *args, **kwargs):
     if not instance.slug:
