@@ -28,8 +28,9 @@ urlpatterns = [
     path('update_stock', views.update_stock, name='update_stock'),
     path('updateview_variation', views.updateview_variation, name='updateview_variation'),
     path('updateview_nonvarient', views.updateview_nonvarient, name='updateview_nonvarient'),
-    path('add_varienet', views.add_varienet, name='add_varienet'),
+    path('add_variant', views.add_variant, name='add_variant'),
     path('save_varient', views.save_varient, name='save_varient'),
+    path('update_stock_non_variant', views.update_stock_non_variant, name='update_stock_non_variant'),
     # path('delete_product/<int:product_id>/', views.delete_product, name='delete_product'),
     
 ] 

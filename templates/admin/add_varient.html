@@ -10,6 +10,7 @@
         <div class="card">
             <div class="card-body ">
                 <h3 class="card-title  d-flex justify-content-center">ADD VARIATION</h3>
+                {% include 'includes/alerts.html' %}
                 <div class="forms-sample ">
                     <div class="form-group  d-flex justify-content-center">
                         <form action="{% url 'save_varient' %}" method="POST" class="forms-sample  col-md-6 ">
@@ -23,6 +24,16 @@
                                     <option value="">Select a variation.</option>
                                     {% for variation in variations %}
                                     <option value="{{ variation.id }}">{{ variation.variation_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="product_name">Product Name</label>
+                                <select class="form-control" id="product_name" name="product_name" required>
+                                    <option value="">Select a product.</option>
+                                    {% for product in products %}
+                                    <option value="{{ product.product.id }}">{{ product.product.product_name }}</option>
                                     {% endfor %}
                                 </select>
                             </div>

@@ -32,23 +32,17 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for product_connection in product_connections %}
+                        {% for product in products_not_in_connection %}
                         <tr>
-                            <td>{{ product_connection.product.product_name }}</td>
+                            <td>{{ product.product_name }}</td>
                             <td>
-                                {% for category in product_connection.categories.all %}
-                                {{ category.variation_name }}<br>
-                                {% endfor %}
+                                {{ product.category_name }}
                             </td>
+                            <td><span id="stockValue{{ product.id }}">{{ product.stock }}</span></td>
                             <td>
-                                {% for variation in variations %}
-                                {% if variation.product == product_connection.product %}
-                                {{ variation.variation_value }}<br>
-                                {% endif %}
-                                {% endfor %}
-                            </td>
-                            <td>
-                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#stockUpdateModal{{ product_connection.product.id }}">Update Stock</button>
+                                <button type="button" class="btn btn-primary" data-toggle="modal"
+                                    data-target="#stockUpdateModal{{ product.id }}">Update Stock</button>
+
                             </td>
                         </tr>
                         {% endfor %}
@@ -62,46 +56,30 @@
 
 
 <!-- Modal for Stock Update -->
-{% for product_connection in product_connections %}
-<div class="modal fade" id="stockUpdateModal{{ product_connection.product.id }}" tabindex="-1" role="dialog" aria-labelledby="stockUpdateModalLabel" aria-hidden="true">
+{% for product in products_not_in_connection %}
+<div class="modal fade" id="stockUpdateModal{{ product.id }}" tabindex="-1" role="dialog"
+    aria-labelledby="stockUpdateModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <form method="post" action="{% url 'update_stock' %}">
-                {% csrf_token %}
-                <input type="hidden" name="product_id" value="{{ product_connection.product.id }}">
-                <input type="hidden" name="product_name" value="{{ product_connection.product.product_name }}">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="stockUpdateModalLabel">Update Stock for {{ product_connection.product.product_name }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="clearForm(this)">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="stockAmount">Stock Amount:</label>
-                        <input type="number" class="form-control" name="stock_amount" placeholder="Enter stock amount" required>
-                    </div>
-                    <div class="form-group">
-                        {% for category in product_connection.categories.all %}
-                        <h5>{{ category.variation_name }}</h5>
-                        {% for variation in variations %}
-                            {% if variation.product == product_connection.product and variation.variation_category == category %}
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="selected_category_values_{{ category.id }}" value="{{ variation.id }}" id="variation{{ variation.id }}" required>
-                                    <label class="form-check-label" for="variation{{ variation.id }}">
-                                        {{ variation.variation_value }} ( {{ variation.stock }} )
-                                    </label>
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="clearForm(this)">Close</button>
-                    <button type="submit" class="btn btn-primary">Update</button>
-                </div>
-            </form>
+            <div class="modal-header">
+                <h5 class="modal-title" id="stockUpdateModalLabel">Update Stock for {{ product.product_name }}<span
+                        id="productName"></span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'update_stock_non_variant' %}" method="post" id="stockUpdateForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <label for="stockInput">Stock:</label>
+                    <input type="number" id="stockInput-{{ product.id }}" name="stock" value="{{ product.stock }}">
+                    <button type="submit" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary save-stock-btn"
+                        data-product-id="{{ product.id }}">Save</button>
+
+                </form>
+            </div>
         </div>
     </div>
 </div>
@@ -135,10 +113,36 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
-    function clearForm(button) {
-        var modal = button.closest('.modal');
-        var form = modal.querySelector('form');
-        form.reset();
-    }
+    $(document).ready(function () {
+        $('.btn-primary.save-stock-btn').on('click', function () {
+            var product_id = $(this).data('product-id');
+            var new_stock = $('#stockInput-' + product_id).val();
+
+            $.ajax({
+                type: 'POST',
+                url: 'update_stock_non_variant',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                    product_id: product_id,
+                    stock: new_stock
+                },
+                success: function (data) {
+                    if (data.success) {
+                        $('#stockValue' + data.product_id).text(data.new_stock);
+                        $('#stockUpdateModal' + product_id).modal('hide');
+                        alert('Stock updated.');
+                    } else {
+                        alert(data.message);
+                    }
+                },
+                error: function (data) {
+                    alert('Stock update failed.');
+                }
+            });
+
+            // Prevent the default form submission behavior
+            return false;
+        });
+    });
 </script>
 {% endblock %}
