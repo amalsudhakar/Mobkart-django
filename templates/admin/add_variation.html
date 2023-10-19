@@ -18,11 +18,11 @@
                             {% csrf_token %}
 
                             <div class="form-group">
-                                <label for="product_name">Product Name</label>
-                                <select class="form-control" id="product_name" name="product_id" required>
+                                <label for="category">Category</label>
+                                <select class="form-control" id="category" name="category" required>
                                     <option value="">Select a category...</option>
-                                    {% for product in products %}
-                                    <option value="{{ product.id }}">{{ product.product_name }}</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.category }}</option>
                                     {% endfor %}
                                 </select>
                             </div>

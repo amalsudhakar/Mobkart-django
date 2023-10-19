@@ -20,7 +20,7 @@
 
                             <thead class="thead-dark">
                                 <tr>
-                                    <th>Product</th>
+                                    <th>Category</th>
                                     <th>Variation Type</th>
                                     <th>Disable</th>
                                 </tr>
@@ -29,7 +29,7 @@
                                 {% for variation in variations %}
                                 {% if variation.is_delete is False %}
                                 <tr>
-                                    <td>{{ variation.product.product_name }}</td>
+                                    <td>{{ variation.category.category }}</td>
                                     <td>{{ variation.variation_name }}</td>
                                     {% if variation.is_delete is False %}
                                         <td>                                    

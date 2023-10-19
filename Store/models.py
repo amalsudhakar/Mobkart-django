@@ -30,7 +30,7 @@ class Product(models.Model):
     description = models.TextField(max_length=500)
     price = models.IntegerField()
     brand = models.CharField(max_length=50)
-    stock = models.IntegerField()
+    stock = models.IntegerField(null=True)
     is_available = models.BooleanField(default=True)
     is_delete = models.BooleanField(default=False)
     category_name = models.ForeignKey(Category, on_delete=models.CASCADE)
@@ -45,7 +45,7 @@ class Product(models.Model):
     
 
 class VariationCategory(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     variation_name = models.CharField(max_length=50)
     is_delete = models.BooleanField(default=False)
     

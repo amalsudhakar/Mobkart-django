@@ -180,26 +180,27 @@ def enable_variation(request):
 
 
 def add_variation(request):
-    products = Product.objects.all()
+    categories = Category.objects.all()
 
     context = {
-        'products': products,
+        'categories': categories,
     }
     return render(request, 'admin/add_variation.html', context)
 
 
 def save_variation(request):
     if request.method == 'POST':
-        product_id = request.POST.get('product_id')
+        category_id = request.POST.get('category')
         variation_category = request.POST.get('variation_category')
         
         try:
-            product = Product.objects.get(id=product_id)
-        except Product.DoesNotExist:
+            category = Category.objects.get(id=category_id)
+        except Category.DoesNotExist:
             return redirect('error_view')
 
+        # Check if the same variation category name already exists for the product.
         existing_category = VariationCategory.objects.filter(
-            product=product,
+            category=category,
             variation_name__iexact=variation_category
         ).first()
 
@@ -207,25 +208,72 @@ def save_variation(request):
             messages.error(request, f"The category '{variation_category}' already exists for this product.")
             return redirect('add_variation')
 
-        product_connection, created = ProductCategoryConnection.objects.get_or_create(product=product)
-        
-        if not created:
-            variation = VariationCategory(product=product, variation_name=variation_category)
-            variation.save()
-            product_connection.categories.add(variation)
-        else:
-            variation = VariationCategory(product=product, variation_name=variation_category)
-            variation.save()
-            product_connection.categories.add(variation)
+        # Create the new VariationCategory instance.
+        new_variation = VariationCategory(category=category, variation_name=variation_category)
+        new_variation.save()
+
+        # Get all products with the selected category.
+        products_with_category = Product.objects.filter(category_name=category)
+
+        # Iterate through the products and create ProductCategoryConnection for each.
+        for product in products_with_category:
+            product_connection, created = ProductCategoryConnection.objects.get_or_create(product=product)
+            product_connection.categories.add(new_variation)
 
         return redirect('view_variation_category')
+    
+
+def add_varienet(request):
+    variations = VariationCategory.objects.all()
+    product = Product.objects.all()
+    context ={
+        'variations': variations,
+        'product': product,
+    }
+    return render(request, 'admin/add_varient.html', context)
+
+
+
+def save_varient(request):
+    if request.method == 'POST':
+        variation_value = request.POST.get('variant')
+        variation_id = request.POST.get('variation')
+        
+        try:
+            variation = VariationCategory.objects.get(id=variation_id)
+        except VariationCategory.DoesNotExist:
+            # Handle the case when the VariationCategory doesn't exist
+            return redirect('error_view')
+
+        # Get the associated category from the variation.
+        category = variation.category
+
+        # Get all products with the specified category.
+        products = Product.objects.filter(category_name=category)
+
+        for product in products:
+            # Create a Variation instance for each product.
+            variation_instance, created = Variation.objects.get_or_create(
+                product=product,
+                variation_category=variation,
+                variation_value=variation_value,
+            )
+            
+            # You can also set other attributes like is_active, is_delete, created_date, and stock if needed.
+            variation_instance.is_active = True
+            variation_instance.is_delete = False
+            variation_instance.stock = 0  # Set the stock value as needed.
+            variation_instance.save()
+
+        return redirect('view_variation_category')
+
 
 
 
 def view_variation_category(request):
     variations = VariationCategory.objects.all()
     context ={
-        'variations': variations,
+        'variations': variations,  
     }
     return render(request, 'admin/view_variation_category.html', context)
 
@@ -274,3 +322,8 @@ def update_stock(request):
         return JsonResponse({'error': 'Variation not found'})
 
     return JsonResponse({'error': 'Stock update failed'})
+
+
+
+def updateview_nonvarient(request):
+    return render(request, 'admin/update_nonvarient_stock.html')
