@@ -95,9 +95,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'mobkart_db',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'localhost',
+        'USER': 'mobkart',
+        'PASSWORD': 'mobkartadmin',
+        'HOST': 'mobkart-db.cl6gwvizswie.us-east-1.rds.amazonaws.com',
         'PORT': '5432',
     }
 }
