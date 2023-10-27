@@ -207,8 +207,8 @@
         // Event listener for the Apply Coupon button
         $("#applyCouponButton").on("click", function () {
             var couponCode = $("#couponCode").val();
-            var currentTotal = parseFloat($("#grandTotal").text().replace('$', '')); // Extract and parse the current total
-
+            var currentTotal = parseFloat($("#grandTotal").text().replace('₹', ''));
+        
             // Get the CSRF token from the HTML
             var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
 
@@ -230,7 +230,7 @@
                 success: function (response) {
                     if (response.valid) {
                         // Update the total and display a success message
-                        $("#grandTotal").text('$' + response.new_total.toFixed(2));
+                        $("#grandTotal").text('₹' + response.new_total.toFixed(2));
                         $("#couponMessage").text("Coupon applied successfully!").removeClass("text-danger").addClass("text-success");
 
                         // Disable the coupon input field and the "Apply Coupon" button

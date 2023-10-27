@@ -176,13 +176,15 @@ def place_order(request, total=0, quantity=0):
 def validate_coupon(request):
     coupon_code = request.POST.get('coupon_code')
     current_total = float(request.POST.get('current_total'))
-    # Query the coupon model to check if the coupon exists and get its discount value
+    print(coupon_code)
+    print(current_total)
     try:
         coupon = Coupon.objects.get(coupon_code=coupon_code)
         discount = coupon.amount
         current_user = request.user
         order = Order.objects.filter(user=current_user, is_ordered=True, coupon=coupon)
         if order.exists():
+            print('coupon applied')
             return JsonResponse({'valid': False, 'message': 'Coupon already used'})
     
     except Coupon.DoesNotExist:
