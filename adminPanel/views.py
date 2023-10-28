@@ -229,6 +229,8 @@ def add_variant(request):
         "variations": variations,
         "products": products,
     }
+    print(products)
+    print(variations)
     return render(request, "admin/add_varient.html", context)
 
 
