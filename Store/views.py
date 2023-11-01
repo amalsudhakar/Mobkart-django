@@ -1,9 +1,8 @@
-from itertools import groupby
 from django.shortcuts import render, get_object_or_404
 from Store.models import Product, Category, Variation
 from Carts.models import CartItem
 from Carts.views import _cart_id
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.core.paginator import Paginator
 from django.db.models import Q
 # Create your views here.
 
@@ -16,7 +15,7 @@ def store(request, category_slug=None):
         categories = get_object_or_404(Category, slug=category_slug)
         products = Product.objects.filter(
             category_name=categories, is_available=True)
-        paginator = Paginator(products, 1)
+        paginator = Paginator(products, 5)
         page = request.GET.get('page')
         paged_products =paginator.get_page(page)
         product_count = products.count()
