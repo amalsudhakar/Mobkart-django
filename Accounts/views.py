@@ -53,7 +53,6 @@ def register(request):
     return render(request, "Accounts/register.html", context)
 
 
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def login(request):
     if "email" in request.session:
         return redirect("/")
