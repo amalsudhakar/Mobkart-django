@@ -46,12 +46,14 @@ INSTALLED_APPS = [
     'Orders',
     "debug_toolbar",
     'error_tracker.DjangoErrorTracker',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -190,3 +192,7 @@ AWS_DEFAULT_ACL =  None
 AWS_S3_VERITY = True
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
+
+# cors header settings
+
+CORS_ORIGIN_ALLOW_ALL = True
