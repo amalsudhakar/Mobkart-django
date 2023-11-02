@@ -122,7 +122,7 @@ def cart(request, total=0, quantity=0, cart_items=None):
         grand_total = total + tax
     except ObjectDoesNotExist:
         pass
-    cart_id = request.session.get("cart_id")
+    cart_id = request.session.session_key
     context = {
         'total': total,
         'quantity': quantity,
