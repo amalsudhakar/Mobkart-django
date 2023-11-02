@@ -61,7 +61,7 @@ MIDDLEWARE = [
 ]
 
 INTERNAL_IPS = [ 
-    "127.0.0.1",
+    "127.0.0.1","3.85.208.2",
 ]
 
 ROOT_URLCONF = 'Mobkart.urls'
