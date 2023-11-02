@@ -11,10 +11,13 @@ from django.contrib import messages
 
 def _cart_id(request):
     cart_id = request.session.get("cart_id")
+    print("Session Key:", request.session.session_key)
     if cart_id is None:
+        # Generate a new cart_id if it's None
         cart_id = request.session.session_key
         request.session["cart_id"] = cart_id
     return cart_id
+
 
 def get_or_create_cart(user, cart_id):
     try:
