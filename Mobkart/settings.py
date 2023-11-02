@@ -197,27 +197,3 @@ DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-
-# error console check aws
-
-LOGGING_DIR = os.path.join(BASE_DIR, 'logs')  # Create a 'logs' directory in your project
-if not os.path.exists(LOGGING_DIR):
-    os.makedirs(LOGGING_DIR)
-
-# settings.py
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'DEBUG',  # Set the log level as needed (DEBUG, INFO, etc.)
-    },
-}
-
-

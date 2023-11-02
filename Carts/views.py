@@ -122,13 +122,14 @@ def cart(request, total=0, quantity=0, cart_items=None):
         grand_total = total + tax
     except ObjectDoesNotExist:
         pass
-
+    cart_id = request.session.get("cart_id")
     context = {
         'total': total,
         'quantity': quantity,
         'cart_items': cart_items,
         'tax': tax,
-        'grand_total': grand_total
+        'grand_total': grand_total,
+        'cart_id': cart_id
     }
     return render(request, 'store/cart.html', context)
 
