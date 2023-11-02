@@ -204,26 +204,20 @@ LOGGING_DIR = os.path.join(BASE_DIR, 'logs')  # Create a 'logs' directory in you
 if not os.path.exists(LOGGING_DIR):
     os.makedirs(LOGGING_DIR)
 
+# settings.py
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
-            'style': '{',
-        },
-    },
     'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(LOGGING_DIR, 'django.log'),
-            'formatter': 'verbose',
+        'console': {
+            'class': 'logging.StreamHandler',
         },
     },
     'root': {
-        'handlers': ['file'],
-        'level': 'DEBUG',
+        'handlers': ['console'],
+        'level': 'DEBUG',  # Set the log level as needed (DEBUG, INFO, etc.)
     },
 }
+
 
