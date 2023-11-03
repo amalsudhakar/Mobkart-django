@@ -14,6 +14,7 @@ click==8.1.7
 colorama==0.4.6
 Django==4.2.3
 django-clearcache==1.2.1
+django-cors-headers==4.3.0
 django-debug-toolbar==4.1.0
 django-storages==1.14.2
 error-tracker==3.1.1
