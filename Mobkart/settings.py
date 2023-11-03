@@ -196,6 +196,5 @@ DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 
 # cors header settings
-
-CORS_ORIGIN_ALLOW_ALL = True
-
+# Allow all origins
+CORS_ALLOW_ALL_ORIGINS = True
