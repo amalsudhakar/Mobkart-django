@@ -86,16 +86,16 @@ def payment(request):
             # Clear the cart if the products are ordered
             CartItem.objects.filter(user=current_user).delete()
 
-            return redirect('order_completed')
+            return redirect('order_completed', order_number=order.order_number)
         elif payment_method == "PayPal":
             print('PayPal payment')
-            # You can add your logic for handling PayPal payments here
+            #handling PayPal payments here
         else:
             # Handle other payment methods or errors
             return HttpResponse("Invalid payment method")
 
         # If everything went well, you can return a success response or redirect
-        return HttpResponse("Payment successful")  # You can customize this response
+        return HttpResponse("Payment successful")
     else:
         # Handle other HTTP methods or errors
         return HttpResponse("Invalid request method")
@@ -209,8 +209,21 @@ def validate_coupon(request):
     return JsonResponse({'valid': True, 'new_total': new_total})
 
 
-def order_completed(request):
-    return render(request, 'Orders/order_completed.html')
+def order_completed(request, order_number):
+    print(order_number)
+    order = Order.objects.get(order_number=order_number, is_ordered=True)
+    ordered_product = OrderProduct.objects.filter(order_id=order.id)
+
+    subtotal = 0
+    for i in ordered_product:
+        subtotal += i.product_price * i.quantity
+    context = {
+        'order': order,
+        'ordered_product': ordered_product,
+        'order_number':order_number,
+        'subtotal': subtotal,
+    }
+    return render(request, 'Orders/order_completed.html', context)
 
 
 def order_failed(request):

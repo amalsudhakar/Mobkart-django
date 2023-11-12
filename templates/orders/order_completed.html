@@ -18,31 +18,31 @@
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <p class="lead fw-normal mb-0" style="color: #a8729a;">Receipt</p>
-                            <p class="small text-muted mb-0">Receipt Voucher : 1KAU9-84UIL</p>
+                            <p class="small text-muted mb-0"></p>
                         </div>
                         <div class="card shadow-0 border mb-4">
                             <div class="card-body">
+                                {% for item in ordered_product %}
                                 <div class="row">
                                     <div class="col-md-2">
-                                        <img src="https://mdbcdn.b-cdn.net/img/Photos/Horizontal/E-commerce/Products/13.webp"
-                                            class="img-fluid" alt="Phone">
+                                        {% with image=item.product.related_image.first %}
+                                        {% if image %}
+                                        <img src="{{ image.image.url }}"
+                                            class="img-fluid" alt="{{ cart_item.product.product_name }} Image">
+                                            {% endif %}
+                                        {% endwith %}
                                     </div>
-                                    <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
-                                        <p class="text-muted mb-0">Samsung Galaxy</p>
+                                    <div class="col-md-3 text-center d-flex justify-content-center align-items-center">
+                                        <p class="text-muted mb-0">{{item.product.product_name}}</p>
                                     </div>
-                                    <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
-                                        <p class="text-muted mb-0 small">White</p>
+                                    <div class="col-md-3 text-center d-flex justify-content-center align-items-center">
+                                        <p class="text-muted mb-0 small">Qty: {{item.quantity}}</p>
                                     </div>
-                                    <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
-                                        <p class="text-muted mb-0 small">Capacity: 64GB</p>
-                                    </div>
-                                    <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
-                                        <p class="text-muted mb-0 small">Qty: 1</p>
-                                    </div>
-                                    <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
-                                        <p class="text-muted mb-0 small">$499</p>
+                                    <div class="col-md-3 text-center d-flex justify-content-center align-items-center">
+                                        <p class="text-muted mb-0 small">Price: {{item.product_price}}</p>
                                     </div>
                                 </div>
+                                {% endfor %}
                                 
                             </div>
                         </div>
@@ -50,28 +50,28 @@
 
                         <div class="d-flex justify-content-between pt-2">
                             <p class="fw-bold mb-0">Order Details</p>
-                            <p class="text-muted mb-0"><span class="fw-bold me-4">Total</span> $898.00</p>
+                            <p class="text-muted mb-0"><span class="fw-bold me-4">Sub Total</span> ₹ {{ subtotal }}</p>
                         </div>
 
                         <div class="d-flex justify-content-between pt-2">
-                            <p class="text-muted mb-0">Invoice Number : 788152</p>
-                            <p class="text-muted mb-0"><span class="fw-bold me-4">Discount</span> $19.00</p>
+                            <p class="text-muted mb-0">Order Number :  {{order_number}}</p>
+                            <p class="text-muted mb-0"><span class="fw-bold me-4">Discount</span> ₹ {% if order.discount is None %} 0 {% else %} {{ order.discount }} {% endif %}</p>
                         </div>
 
                         <div class="d-flex justify-content-between">
-                            <p class="text-muted mb-0">Invoice Date : 22 Dec,2019</p>
-                            <p class="text-muted mb-0"><span class="fw-bold me-4">GST 18%</span> 123</p>
+                            <p class="text-muted mb-0">Invoice Date : {{order.created_at}}</p>
+                            <p class="text-muted mb-0"><span class="fw-bold me-4">GST </span> ₹ {{order.tax}}</p>
                         </div>
 
                         <div class="d-flex justify-content-between mb-5">
-                            <p class="text-muted mb-0">Recepits Voucher : 18KU-62IIK</p>
-                            <p class="text-muted mb-0"><span class="fw-bold me-4">Delivery Charges</span> Free</p>
+                            <p class="text-muted mb-0">Order Address : {{order.name}} , {{order.full_address}},<br> {{order.city}}, {{order.state}}, {{order.pincode}}</p>
+                            <p class="text-muted mb-0"><span class="fw-bold me-4">Grand Total</span> ₹ {{order.order_total}} </p>
                         </div>
                     </div>
                     <div class="card-footer border-0 px-4 py-5"
-                        style="background-color: #a8729a; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">
+                        style="background-color: rgb(126, 172, 202); border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">
                         <h5 class="d-flex align-items-center justify-content-end text-white text-uppercase mb-0">Total
-                            paid: <span class="h2 mb-0 ms-2">$1040</span></h5>
+                            paid: <span class="h2 mb-0 ms-2"> ₹ {{order.order_total}}</span></h5>
                     </div>
                 </div>
             </div>
