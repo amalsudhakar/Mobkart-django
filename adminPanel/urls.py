@@ -31,6 +31,9 @@ urlpatterns = [
     path('add_variant', views.add_variant, name='add_variant'),
     path('save_varient', views.save_varient, name='save_varient'),
     path('update_stock_non_variant', views.update_stock_non_variant, name='update_stock_non_variant'),
+    path('add_category', views.add_category, name='add_category'),
+    path('save_category', views.save_category, name='save_category'),
+
     # path('delete_product/<int:product_id>/', views.delete_product, name='delete_product'),
     
 ] 

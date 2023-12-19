@@ -220,6 +220,7 @@ def save_variation(request):
             product_connection.categories.add(new_variation)
 
         return redirect("view_variation_category")
+    
 
 
 def add_variant(request):
@@ -351,3 +352,22 @@ def update_stock_non_variant(request):
     
     # If there's a validation error or an invalid request, return an appropriate JSON response.
     return JsonResponse({'success': False, 'message': 'Validation error or invalid request'}, status=400)
+
+
+def add_category(request):
+    return render(request, 'admin/category.html')
+
+
+def save_category(request):
+    if request.method == 'POST':
+        category_name = request.POST.get('product_category')
+        if not Category.objects.filter(Q(category__iexact=category_name) | Q(category__iexact=category_name.lower())).exists(): 
+                    category = Category(category=category_name)
+                    category.save()
+                    messages.success(request, f"Category '{category_name}' added successfully!")  # Success message
+                    return redirect('view_variation_category')  
+        else:
+            messages.error(request, f"Category '{category_name}' already exists for this product.")
+            return redirect('add_category') 
+    else:
+        return render(request, 'add_category.html')
